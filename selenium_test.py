@@ -9,9 +9,12 @@ driver = webdriver.Firefox()
 driver.get('http://www.miniclip.com/games/bejeweled/en/')
 
 el = driver.find_element_by_css_selector('#iframe-game')  # find part of the page you want image of
+bd = driver.find_element_by_css_selector('body')
 
 print(el.location)  # location
 print(el.size)      # size
+
+print(bd.location)
 
 def connect_start():
     el = driver.find_element_by_css_selector('#iframe-game')
@@ -46,7 +49,7 @@ connect_start()
 driver.save_screenshot('Jewels.png')  # save screenshot of the image to the file
 
 img = cv2.imread("Jewels.png")
-crop_img = img[152:557, 125:665]
+crop_img = img[el.location['y']:el.location['y'] + el.size['height'], el.location['x']:el.location['x'] + el.size['width']]
 # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
 cv2.imwrite("cropped.png", crop_img)
 cv2.waitKey(0)
