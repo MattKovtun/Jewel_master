@@ -41,14 +41,13 @@ def connect_start():
 
 connect_start()
 
-def test_switch():
+def test_switch(gem_1, gem_2):
     el = driver.find_element_by_css_selector('#iframe-game')
     action = webdriver.common.action_chains.ActionChains(driver)
-    action.move_to_element_with_offset(el, el.size['width'] // 2, el.size['height'] // 2)
+    action.move_to_element_with_offset(el, gem_1[1][0], gem_1[1][1])
     action.click()
-    action.move_to_element_with_offset(el, el.size['width'] // 2 + 42, el.size['height'] // 2)
+    action.move_to_element_with_offset(el, gem_2[1][0], gem_2[1][2])
     action.click()
-
     action.perform()
 
 test_switch()
