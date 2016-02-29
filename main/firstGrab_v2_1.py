@@ -75,7 +75,7 @@ class GameBoard:
         self.driver.save_screenshot('Jewels.png')  # save screenshot of the image to the file
         self.img = cv2.imread("Jewels.png")
         self.crop_img = self.img[self.el.location['y']:self.el.location['y'] + self.el.size['height'], self.el.location['x']:self.el.location['x'] + self.el.size['width']]
-        cv2.imwrite("cropped.png", self.crop_img)
+        cv2.imwrite("cropped.png"   , self.crop_img)
         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
         self.img_rgb = cv2.imread("cropped.png")
         self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
@@ -153,6 +153,7 @@ class GameBoard:
         return self.moves
 
     def swap1(self, gem_1, gem_2):
+        self.action = webdriver.common.action_chains.ActionChains(self.driver)
         self.gem_1 = gem_1
         self.gem_2 = gem_2
         self.action.move_to_element_with_offset(self.el, self.gem_1[1][0], self.gem_1[1][1])
@@ -167,8 +168,17 @@ new.connect_start()
 new.analyze()
 new.find_moves()
 
-
-#print(list(gems[0]))
 gems = new.find_moves()
 
 new.swap1(gems[0][0], gems[0][1])
+
+try:
+    while True:
+        time.sleep(2)
+        new.analyze()
+        new.find_moves()
+        gems = new.find_moves()
+        new.swap1(gems[0][0], gems[0][1])
+except IndexError:
+    pass
+#print(list(gems[0]))
