@@ -1,6 +1,6 @@
 
 import numpy as np
-
+import time
 import copy
 from selenium import webdriver
 import time
@@ -20,36 +20,64 @@ class GameBoard:
         self.driver = driver
   # find part of the page you want image of
 
-    def detect(self, mat):
+    def detect(mat):
         """
         We detect here 3 in row or 3 in column
         """
+       # print(len(mat))
+        utility = 0
+
         for j in range(8):
             for i in range(1, 8):
-
                 #if mat[j][i][0] != mat[j][i - 1][0] : #if lst[i][j] != lst[i][j + 1]:
-                #    continue
+                    #continue
+                if i == 7 and utility >= 2:
+                    return (True, utility)
 
                 if i == 7:
+                    utility = 0
                     continue
 
-                if mat[j][i][0][:2] == mat[j][i - 1][0][:2] and mat[j][i][0][:2] == mat[j][i + 1][0][:2]:
-                                   # print("Line at ", j, i - 1, mat[j][i - 1], mat[j][i + 1])
-                    return True
+                if mat[j][i][0][:3] == mat[j][i - 1][0][:3]:
+                     utility +=1
+
+                if mat[j][i][0][:3] != mat[j][i - 1][0][:3]:
+                    if utility >= 2:
+                        return (True, utility)
+                    else:
+                        utility = 0
 
 
-              #  if mat[j][i][0] == mat[j][i - 1][0] and mat[j][i][0] == mat[j][i + 1][0]:
-              #     # print("Line at ", j, i - 1, mat[j][i - 1], mat[j][i + 1])
-                #    return True
+
+                  #  print("Line at ", j, i - 1, mat[j][i - 1], mat[j][i + 1])
+                   # return True
+
+
+               # if mat[j][i][0][:3] == mat[j][i - 1][0][:3] and mat[j][i][0][:3] == mat[j][i + 1][0][:3]:
+
+                  #  print("Line at ", j, i - 1, mat[j][i - 1], mat[j][i + 1])
+                   # return True
+
+        utility = 0
         for j in range(8):
             for i in range(1, 8):
+                if i == 7 and utility >= 2:
+                    return (True, utility)
 
                 if i == 7:
+                    utility = 0
                     continue
 
-                if mat[i][j][0][:2] == mat[i - 1][j][0][:2] and mat[i][j][0][:2] == mat[i + 1][j][0][:2]:
+                if mat[i][j][0][:3] == mat[i - 1][j][0][:3]:
+                    utility +=1
                   #  print("Line at ", i - 1, j, mat[i - 1][j], mat[i + 1][j])
-                    return True
+                if mat[i][j][0][:3] != mat[i - 1][j][0][:3]:
+                    if utility >= 2:
+                        return (True, utility)
+                    else:
+                        utility = 0
+
+        return (False, 0)
 
     def connect_start(self):
         self.driver.get('http://www.miniclip.com/games/bejeweled/en/')
@@ -73,7 +101,6 @@ class GameBoard:
         time.sleep(4.5)
 
     def analyze(self):
-
         self.mat_lst = []
         self.general_lst = []
         self.driver.save_screenshot('Jewels.png')  # save screenshot of the image to the file
@@ -85,12 +112,8 @@ class GameBoard:
         self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
         cv2.waitKey(0)
 
-
-
         for self.gem in GameBoard.gems:
             self.template = cv2.imread(self.gem[0],0)
-            #w, h = template.shape[::-1]
-           # print(w, h)
             self.res = cv2.matchTemplate(self.img_gray, self.template, cv2.TM_CCOEFF_NORMED)
             self.threshold = self.gem[2]
             self.loc = np.where(self.res >= self.threshold)
@@ -113,8 +136,6 @@ class GameBoard:
 
 
     def new_sort(self, lst, color, param):
-        #self.lst = lst
-       #self.color = color
         self.param = param
         self.new_lst = []
 
@@ -135,7 +156,6 @@ class GameBoard:
             self.j = self.cell - self.i * 8
             print()
             print(self.i, self.j, self.mat_lst[self.i][self.j])
-
             self.new_mat_lst = copy.deepcopy(self.mat_lst)
 
             for self.op in GameBoard.ops:
@@ -146,11 +166,11 @@ class GameBoard:
                     self.swap = self.new_mat_lst[self.i][self.j]
                     self.new_mat_lst[self.i][self.j] = self.new_mat_lst[self.n_i][self.n_j]
                     self.new_mat_lst[self.n_i][self.n_j] = self.swap
-
-                    if GameBoard.detect(self, self.new_mat_lst):
-                        if ((self.n_i, self.n_j), (self.i, self.j)) not in self.moves:
+                    self.TM = GameBoard.detect(self.new_mat_lst)
+                    if self.TM[0]:
+                        if (self.TM[0], (self.n_i, self.n_j), (self .i, self.j)) not in self.moves:
                            # self.moves.append(((self.i, self.j), (self.n_i, self.n_j)))
-                            self.moves.append(((self.mat_lst[self.i][self.j]), (self.mat_lst[self.n_i][self.n_j])))
+                            self.moves.append((self.TM[1], (self.mat_lst[self.i][self.j]), (self.mat_lst[self.n_i][self.n_j])))
 
                     self.swap = self.new_mat_lst[self.n_i][self.n_j]
                     self.new_mat_lst[self.n_i][self.n_j] = self.new_mat_lst[self.i][self.j]
@@ -158,6 +178,8 @@ class GameBoard:
 
        # print(len(self.moves))
         print(self.moves)
+        self.moves = sorted(self.moves, reverse=True, key=lambda x: x[0])
+
         return self.moves
 
     def swap1(self, gem_1, gem_2):
@@ -166,6 +188,7 @@ class GameBoard:
         self.gem_2 = gem_2
         self.action.move_to_element_with_offset(self.el, self.gem_1[1][0], self.gem_1[1][1])
         self.action.click()
+        time.sleep(0.4)
         self.action.move_to_element_with_offset(self.el, self.gem_2[1][0], self.gem_2[1][1])
         self.action.click()
         self.action.perform()
@@ -181,7 +204,6 @@ class GameBoard:
         cv2.waitKey(0)
 
         self.template = cv2.imread(GameBoard.pop_cup[0], 0)
-
         self.res = cv2.matchTemplate(self.img_gray, self.template,cv2.TM_CCOEFF_NORMED)
         self.threshold = GameBoard.pop_cup[1]
         self.loc = np.where(self.res >= self.threshold)
@@ -201,19 +223,13 @@ new.connect_start()
 
 
 
-#new.analyze()
-#gems = new.find_moves()
-#new.swap1(gems[0][0], gems[0][1])
-
-
 while True:
     try:
         time.sleep(3)
         new.analyze()
-
         gems = new.find_moves()
-        new.swap1(gems[0][0], gems[0][1])
+        new.swap1(gems[0][1], gems[0][2])
     except IndexError:
         time.sleep(6)
         continue
-#print(list(gems[0]))
+
