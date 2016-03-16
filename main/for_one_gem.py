@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 import numpy as np
-import detect
+#import detect
 
 gems = [('number_1.jpg', '1', 0.91) ,('number_2.jpg', '2', 0.8), ('number_3.jpg', '3', 0.8) ,('number_4.jpg', '4', 0.8) , ('number_5.jpg', '5', 0.8), ('number_6.jpg', '6', 0.8), ('number_7.jpg', '7', 0.88), ('number_8.jpg', '8', 0.88), ('number_9.jpg', '9', 0.76),  ('number_0.jpg', '0', 0.8) ]
 general_lst = []
+pop_cup = [('start_game.jpg','test', 0.66)]
 
-img_rgb = cv2.imread('Jewels_3.png')
+img_rgb = cv2.imread('test_play.png')
 img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
 
 def sorter(lst, color):
@@ -44,7 +45,7 @@ def new_sort(lst, color):
           
             
     
-for gem in gems:
+for gem in pop_cup:
 
     template = cv2.imread(gem[0],0)
     w, h = template.shape[::-1]
