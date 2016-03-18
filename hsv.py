@@ -5,7 +5,7 @@ def nothing(x):
     pass
 
 # Create a black image, a window
-img = cv2.imread('cropped.png')
+img = cv2.imread('cropped1.png')
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 new_img = img.copy()
 

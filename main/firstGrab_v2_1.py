@@ -12,7 +12,9 @@ class GameBoard:
       #  number_lst = [('number_1.jpg', '1', 0.88) ,('number_2.jpg', '2', 0.8), ('number_3.jpg', '3', 0.8) ,('number_4.jpg', '4', 0.8) , ('number_5.jpg', '5', 0.8), ('number_6.jpg', '6', 0.8), ('number_7.jpg', '7', 0.88), ('number_8.jpg', '8', 0.8), ('number_9.jpg', '9', 0.66),  ('number_0.jpg', '0', 0.8) ]
   #  new_number_lst = []
     pop_cup = ('start_game.jpg', 0.66)
-    gems = [('White_gem.jpg', 'white', 0.88), ('White_flame.jpg', 'white_flame', 0.88), ('White_snow.jpg', 'white_snow', 0.88), ('Blue_gem.jpg', 'blue', 0.84), ('Blue_snow.jpg', 'blue_snow', 0.82), ('Purple_gem.jpg', 'purple', 0.8), ('Purple_flame.jpg', 'purple_flame', 0.8), ('Purple_snow.jpg', 'purple_snow', 0.8), ('Yellow_gem.jpg', 'yellow', 0.82),  ('Yellow_snow.jpg', 'yellow_snow', 0.88), ('Red_gem.jpg', 'red', 0.81), ('Red_flame.jpg', 'red_flame', 0.8),  ('Red_snow.jpg', 'red_snow', 0.8), ('Orange_gem.jpg', 'orange', 0.85), ('Orange_flame.jpg', 'orange_flame', 0.85), ('Orange_snow.jpg', 'orange_snow', 0.83), ('Green_gem.jpg', 'green', 0.84), ('Green_flame.jpg', 'green_flame', 0.8), ('Green_snow.jpg', 'green_snow', 0.8), ('Blue_flame.jpg', 'blue_flame', 0.8), ('Yellow_flame.jpg', 'yellow_flame', 0.84)]
+    gems = [('White_gem_1.jpg', 'white', 0.88), ('White_flame_1.jpg', 'white_flame', 0.88), ('White_snow_1.jpg', 'white_snow', 0.88), ('Blue_gem_1.jpg', 'blue', 0.84), ('Blue_snow_1.jpg', 'blue_snow', 0.82), ('Purple_gem_1.jpg', 'purple', 0.8), ('Purple_flame_1.jpg', 'purple_flame', 0.8), ('Purple_snow_1.jpg', 'purple_snow', 0.8), ('Yellow_gem_1.jpg', 'yellow', 0.82),  ('Yellow_snow_1.jpg', 'yellow_snow', 0.88), ('Red_gem_1.jpg', 'red', 0.81), ('Red_flame_1.jpg', 'red_flame', 0.8),  ('Red_snow_1.jpg', 'red_snow', 0.8), ('Orange_gem_1.jpg', 'orange', 0.85), ('Orange_flame_1.jpg', 'orange_flame', 0.85), ('Orange_snow_1.jpg', 'orange_snow', 0.83), ('Green_gem_1.jpg', 'green', 0.84), ('Green_flame_1.jpg', 'green_flame', 0.8), ('Green_snow_1.jpg', 'green_snow', 0.8), ('Blue_flame_1.jpg', 'blue_flame', 0.8), ('Yellow_flame_1.jpg', 'yellow_flame', 0.84)]
+    #gems = [('White_gem.jpg', 'white', 0.88), ('White_flame.jpg', 'white_flame', 0.88), ('White_snow.jpg', 'white_snow', 0.88), ('Blue_gem.jpg', 'blue', 0.84), ('Blue_snow.jpg', 'blue_snow', 0.82), ('Purple_gem.jpg', 'purple', 0.8), ('Purple_flame.jpg', 'purple_flame', 0.8), ('Purple_snow.jpg', 'purple_snow', 0.8), ('Yellow_gem.jpg', 'yellow', 0.82),  ('Yellow_snow.jpg', 'yellow_snow', 0.88), ('Red_gem.jpg', 'red', 0.81), ('Red_flame.jpg', 'red_flame', 0.8),  ('Red_snow.jpg', 'red_snow', 0.8), ('Orange_gem.jpg', 'orange', 0.85), ('Orange_flame.jpg', 'orange_flame', 0.85), ('Orange_snow.jpg', 'orange_snow', 0.83), ('Green_gem.jpg', 'green', 0.84), ('Green_flame.jpg', 'green_flame', 0.8), ('Green_snow.jpg', 'green_snow', 0.8), ('Blue_flame.jpg', 'blue_flame', 0.8), ('Yellow_flame.jpg', 'yellow_flame', 0.84)]
+
     ops = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     def __init__(self, driver=webdriver.Firefox()):
@@ -85,7 +87,7 @@ class GameBoard:
 
         print('The page has been loaded.')
         while True:
-            if new.start_game():
+            if self.start_game():
                 print("SS")
                 break
 
@@ -107,11 +109,35 @@ class GameBoard:
         self.driver.save_screenshot('Jewels.png')  # save screenshot of the image to the file
         self.img = cv2.imread("Jewels.png")
         self.crop_img = self.img[self.el.location['y']:self.el.location['y'] + self.el.size['height'], self.el.location['x']:self.el.location['x'] + self.el.size['width']]
-        cv2.imwrite("cropped.png"   , self.crop_img)
+
+      #  img = cv2.imread(gem)
+        hsv = cv2.cvtColor(self.crop_img, cv2.COLOR_BGR2HSV)
+
+        h_low = 0
+        s_low = 0
+        v_low = 118
+        h_high = 179
+        s_high = 255
+        v_high = 255
+        lower = np.array([h_low, s_low, v_low])
+        upper = np.array([h_high, s_high, v_high])
+        mask = cv2.inRange(hsv, lower, upper)
+        self.crop_image = cv2.bitwise_and(self.crop_img, self.crop_img, mask=mask)
+
+
+
+
+
+
+
+
+
+
+        cv2.imwrite("cropped.png"   , self.crop_image)
         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
         self.img_rgb = cv2.imread("cropped.png")
         self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
-        cv2.waitKey(0)
+        #cv2.waitKey(0)
 
         for self.gem in GameBoard.gems:
             self.template = cv2.imread(self.gem[0],0)
@@ -187,10 +213,10 @@ class GameBoard:
         self.action = webdriver.common.action_chains.ActionChains(self.driver)
         self.gem_1 = gem_1
         self.gem_2 = gem_2
-        self.action.move_to_element_with_offset(self.el, self.gem_1[1][0], self.gem_1[1][1])
+        self.action.move_to_element_with_offset(self.el, self.gem_1[1][0] + 4, self.gem_1[1][1] + 4)
         self.action.click()
         time.sleep(0.4)
-        self.action.move_to_element_with_offset(self.el, self.gem_2[1][0], self.gem_2[1][1])
+        self.action.move_to_element_with_offset(self.el, self.gem_2[1][0] + 4, self.gem_2[1][1] + 4)
         self.action.click()
         self.action.perform()
 
@@ -202,7 +228,7 @@ class GameBoard:
         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
         self.img_rgb = cv2.imread("cropped.png")
         self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
-        cv2.waitKey(0)
+       # cv2.waitKey(0)
 
         self.template = cv2.imread(GameBoard.pop_cup[0], 0)
         self.res = cv2.matchTemplate(self.img_gray, self.template,cv2.TM_CCOEFF_NORMED)
@@ -213,7 +239,7 @@ class GameBoard:
         for self.pt in zip(*self.loc[::-1]):
             self.lst.append(self.pt)
         print("It's loading ,wait please...") #debug
-        time.sleep(2)
+
         if len(self.lst) :
             print("Loading is completed!")
             return True
