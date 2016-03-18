@@ -86,6 +86,7 @@ class GameBoard:
         print('The page has been loaded.')
         while True:
             if new.start_game():
+                print("SS")
                 break
 
         self.action = webdriver.common.action_chains.ActionChains(self.driver)
@@ -212,7 +213,7 @@ class GameBoard:
         for self.pt in zip(*self.loc[::-1]):
             self.lst.append(self.pt)
         print("It's loading ,wait please...") #debug
-
+        time.sleep(2)
         if len(self.lst) :
             print("Loading is completed!")
             return True
