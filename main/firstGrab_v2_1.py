@@ -1,11 +1,11 @@
-
 import numpy as np
 import time
 import copy
 from selenium import webdriver
 import time
 import cv2
-
+import os
+from main.gem import Gem
 
 
 class GameBoard:
@@ -16,11 +16,37 @@ class GameBoard:
     #gems = [('White_gem.jpg', 'white', 0.88), ('White_flame.jpg', 'white_flame', 0.88), ('White_snow.jpg', 'white_snow', 0.88), ('Blue_gem.jpg', 'blue', 0.84), ('Blue_snow.jpg', 'blue_snow', 0.82), ('Purple_gem.jpg', 'purple', 0.8), ('Purple_flame.jpg', 'purple_flame', 0.8), ('Purple_snow.jpg', 'purple_snow', 0.8), ('Yellow_gem.jpg', 'yellow', 0.82),  ('Yellow_snow.jpg', 'yellow_snow', 0.88), ('Red_gem.jpg', 'red', 0.81), ('Red_flame.jpg', 'red_flame', 0.8),  ('Red_snow.jpg', 'red_snow', 0.8), ('Orange_gem.jpg', 'orange', 0.85), ('Orange_flame.jpg', 'orange_flame', 0.85), ('Orange_snow.jpg', 'orange_snow', 0.83), ('Green_gem.jpg', 'green', 0.84), ('Green_flame.jpg', 'green_flame', 0.8), ('Green_snow.jpg', 'green_snow', 0.8), ('Blue_flame.jpg', 'blue_flame', 0.8), ('Yellow_flame.jpg', 'yellow_flame', 0.84)]
 
     ops = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    EXAMPLES_PATH = 'gems_examples/'
+    ERRORS = [0.7, 0.7]
+    EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
+                ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy']]
 
     def __init__(self, driver=webdriver.Firefox()):
-
         self.driver = driver
-  # find part of the page you want image of
+        self.examples = []
+
+        self.gems = []
+        for i in range(8):
+            level = []
+            for j in range(8):
+                level.append('__')
+            self.gems.append(level)
+        # Adding file examples
+        for level in GameBoard.EXAMPLES:
+            examples_level = []
+            for filename in level:
+                img = np.load(GameBoard.EXAMPLES_PATH + filename)
+                code = filename[:-4]
+                examples_level.append(Gem(code, img))
+            self.examples.append(examples_level)
+
+    def _clear_data(self):
+        self.gems = []
+        for i in range(8):
+            level = []
+            for j in range(8):
+                level.append('__')
+            self.gems.append(level)
 
     def detect(mat):
         """
@@ -83,7 +109,10 @@ class GameBoard:
 
     def connect_start(self):
         self.driver.get('http://www.miniclip.com/games/bejeweled/en/')
-        self.el = self.driver.find_element_by_css_selector('#iframe-game')
+
+        ####
+        self.el = self.driver.find_element_by_css_selector('#iframe-game') # you should use meaningful names
+        ####
 
         print('The page has been loaded.')
         while True:
@@ -103,24 +132,90 @@ class GameBoard:
         self.action.perform()
         time.sleep(4.5)
 
+    @staticmethod
+    def save_file(folder, img):
+        """
+        Check folder existence. If folder doesn't exist it creates new folder.
+        :param folder: path to folder.
+        :param img: image file.
+        :return: number of files in folder.
+        """
+        np_filename = folder
+        im_filename = folder
+        if os.path.isdir(folder):
+            num = str(len(os.listdir(folder)))
+            os.mkdir(folder + '/' + num)
+            im_filename += '/' + num + '/data.jpg'
+            np_filename += '/' + num + '/data.npy'
+        else:
+            os.mkdir(folder)
+            os.mkdir(folder + '/0')
+            im_filename += '/0/data.jpg'
+            np_filename += '/0/data.npy'
+        cv2.imwrite(im_filename, img)
+        np.save(np_filename, img)
+
+    def analyze_2(self):
+        self.driver.save_screenshot('temp.jpg')
+        screen = cv2.imread("temp.jpg")
+        top = self.el.location['y'] + 49
+        left = self.el.location['x'] + 168
+        width = 320
+        height = 320
+
+        img_board = screen[top:top + height, left:left + width]
+
+        hsv = cv2.cvtColor(img_board, cv2.COLOR_BGR2HSV)
+
+        lower = np.array([0, 0, 118])
+        upper = np.array([179, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+        img_board = cv2.bitwise_and(img_board, img_board, mask=mask)
+
+        self._clear_data()
+
+        for i in range(8):
+            for j in range(8):
+                found = False
+                gem = img_board[i * 40:(i + 1) * 40, j * 40:(j + 1) * 40]
+
+                for k in range(len(self.examples)):
+                    if found:
+                        break
+
+                    level = self.examples[k]
+                    for example in level:
+                        res = example.compare(gem)
+                        if res > GameBoard.ERRORS[k]:
+                            self.gems[i][j] = str(example)
+                            found = True
+                            break
+
+                if self.gems[i][j] == '__':
+                    GameBoard.save_file('errors', gem)
+
+            print(' '.join(self.gems[i]))
+
+        #cv2.imshow('board', self.board_img)
+        #cv2.waitKey(0)
+
     def analyze(self):
         self.mat_lst = []
         self.general_lst = []
+
         self.driver.save_screenshot('Jewels.png')  # save screenshot of the image to the file
-        self.img = cv2.imread("Jewels.png")
+
+        #####
+        self.img = cv2.imread("Jewels.png") # why do you need to save this picture?
+        #####
+
         self.crop_img = self.img[self.el.location['y']:self.el.location['y'] + self.el.size['height'], self.el.location['x']:self.el.location['x'] + self.el.size['width']]
 
       #  img = cv2.imread(gem)
         hsv = cv2.cvtColor(self.crop_img, cv2.COLOR_BGR2HSV)
 
-        h_low = 0
-        s_low = 0
-        v_low = 118
-        h_high = 179
-        s_high = 255
-        v_high = 255
-        lower = np.array([h_low, s_low, v_low])
-        upper = np.array([h_high, s_high, v_high])
+        lower = np.array([0, 0, 118])
+        upper = np.array([179, 255, 255])
         mask = cv2.inRange(hsv, lower, upper)
         self.crop_image = cv2.bitwise_and(self.crop_img, self.crop_img, mask=mask)
 
@@ -245,18 +340,27 @@ class GameBoard:
             return True
         else :
             return False
+
+"""
+#####
+# Move this part of code to the separate file
+#####
 new = GameBoard()
-new.connect_start()
 
-
+#####
+new.connect_start() # should be renamed to load_game or something like that
+#####
 
 while True:
     try:
-        time.sleep(3)
+        #####
+        time.sleep(3) # Do you really need this?
+        #####
+
         new.analyze()
         gems = new.find_moves()
         new.swap1(gems[0][1], gems[0][2])
     except IndexError:
         time.sleep(6)
         continue
-
+"""
