@@ -17,9 +17,10 @@ class GameBoard:
 
     ops = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     EXAMPLES_PATH = 'gems_examples/'
-    ERRORS = [0.7, 0.7]
+    ERRORS = [0.7, 0.7, 0.7]
     EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
-                ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy']]
+                ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy'],
+                ['bs.npy', 'gs.npy', 'os.npy', 'ps.npy', 'rs.npy', 'ws.npy', 'ys.npy']]
 
     def __init__(self, driver=webdriver.Firefox()):
         self.driver = driver
@@ -50,7 +51,7 @@ class GameBoard:
 
     def detect(mat):
         """
-        We detect here 3 in row or 3 in column
+        We detect here largest number of gems in row or in column
         """
        # print(len(mat))
         utility = 0
@@ -107,7 +108,7 @@ class GameBoard:
 
         return (False, 0)
 
-    def connect_start(self):
+    def load_game(self):
         self.driver.get('http://www.miniclip.com/games/bejeweled/en/')
 
         ####
@@ -340,27 +341,3 @@ class GameBoard:
             return True
         else :
             return False
-
-"""
-#####
-# Move this part of code to the separate file
-#####
-new = GameBoard()
-
-#####
-new.connect_start() # should be renamed to load_game or something like that
-#####
-
-while True:
-    try:
-        #####
-        time.sleep(3) # Do you really need this?
-        #####
-
-        new.analyze()
-        gems = new.find_moves()
-        new.swap1(gems[0][1], gems[0][2])
-    except IndexError:
-        time.sleep(6)
-        continue
-"""
