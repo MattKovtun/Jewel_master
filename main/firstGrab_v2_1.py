@@ -17,7 +17,7 @@ class GameBoard:
 
     ops = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     EXAMPLES_PATH = 'gems_examples/'
-    ERRORS = [0.7, 0.7, 0.7]
+    ERRORS = [0.7, 0.7, 0.6]
     EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
                 ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy'],
                 ['bs.npy', 'gs.npy', 'os.npy', 'ps.npy', 'rs.npy', 'ws.npy', 'ys.npy']]
@@ -25,13 +25,14 @@ class GameBoard:
     def __init__(self, driver=webdriver.Firefox()):
         self.driver = driver
         self.examples = []
-
+        self.coords = []
         self.gems = []
         for i in range(8):
             level = []
             for j in range(8):
                 level.append('__')
             self.gems.append(level)
+            self.coords.append(level)
         # Adding file examples
         for level in GameBoard.EXAMPLES:
             examples_level = []
@@ -60,6 +61,16 @@ class GameBoard:
             for i in range(1, 8):
                 #if mat[j][i][0] != mat[j][i - 1][0] : #if lst[i][j] != lst[i][j + 1]:
                     #continue
+
+                if mat[j][i][0] == mat[j][i - 1][0]:
+                     utility +=1
+
+                if mat[j][i][0] != mat[j][i - 1][0]:
+                    if utility >= 2:
+                        return (True, utility)
+                    else:
+                        utility = 0
+
                 if i == 7 and utility >= 2:
                     return (True, utility)
 
@@ -67,44 +78,26 @@ class GameBoard:
                     utility = 0
                     continue
 
-                if mat[j][i][0][:3] == mat[j][i - 1][0][:3]:
-                     utility +=1
 
-                if mat[j][i][0][:3] != mat[j][i - 1][0][:3]:
-                    if utility >= 2:
-                        return (True, utility)
-                    else:
-                        utility = 0
-
-
-
-                  #  print("Line at ", j, i - 1, mat[j][i - 1], mat[j][i + 1])
-                   # return True
-
-
-               # if mat[j][i][0][:3] == mat[j][i - 1][0][:3] and mat[j][i][0][:3] == mat[j][i + 1][0][:3]:
-
-                  #  print("Line at ", j, i - 1, mat[j][i - 1], mat[j][i + 1])
-                   # return True
 
         utility = 0
         for j in range(8):
             for i in range(1, 8):
+
+                if mat[i][j][0] == mat[i - 1][j][0]:
+                    utility += 1
+                  #  print("Line at ", i - 1, j, mat[i - 1][j], mat[i + 1][j])
+                if mat[i][j][0] != mat[i - 1][j][0]:
+                    if utility >= 2:
+                        return (True, utility)
+                    else:
+                        utility = 0
                 if i == 7 and utility >= 2:
                     return (True, utility)
 
                 if i == 7:
                     utility = 0
                     continue
-
-                if mat[i][j][0][:3] == mat[i - 1][j][0][:3]:
-                    utility +=1
-                  #  print("Line at ", i - 1, j, mat[i - 1][j], mat[i + 1][j])
-                if mat[i][j][0][:3] != mat[i - 1][j][0][:3]:
-                    if utility >= 2:
-                        return (True, utility)
-                    else:
-                        utility = 0
 
         return (False, 0)
 
@@ -157,6 +150,7 @@ class GameBoard:
         np.save(np_filename, img)
 
     def analyze_2(self):
+        self.mat_lst = []
         self.driver.save_screenshot('temp.jpg')
         screen = cv2.imread("temp.jpg")
         top = self.el.location['y'] + 49
@@ -179,16 +173,21 @@ class GameBoard:
             for j in range(8):
                 found = False
                 gem = img_board[i * 40:(i + 1) * 40, j * 40:(j + 1) * 40]
-
+                self.coords[i][j] = ((j * 40) + 5 + 168, (i * 40) + 5 + 49)
                 for k in range(len(self.examples)):
                     if found:
                         break
-
+                  #  print(self.examples)
+                  #  print()
                     level = self.examples[k]
+                   # print(level)
+
                     for example in level:
                         res = example.compare(gem)
                         if res > GameBoard.ERRORS[k]:
                             self.gems[i][j] = str(example)
+
+#                            self.mat_lst.append()
                             found = True
                             break
 
@@ -196,7 +195,9 @@ class GameBoard:
                     GameBoard.save_file('errors', gem)
 
             print(' '.join(self.gems[i]))
-
+        #print(self.coords)
+       # print(self.gems)
+        return self.gems
         #cv2.imshow('board', self.board_img)
         #cv2.waitKey(0)
 
@@ -219,16 +220,6 @@ class GameBoard:
         upper = np.array([179, 255, 255])
         mask = cv2.inRange(hsv, lower, upper)
         self.crop_image = cv2.bitwise_and(self.crop_img, self.crop_img, mask=mask)
-
-
-
-
-
-
-
-
-
-
         cv2.imwrite("cropped.png"   , self.crop_image)
         # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
         self.img_rgb = cv2.imread("cropped.png")
@@ -273,46 +264,46 @@ class GameBoard:
         return self.new_lst
 
     def find_moves(self):
-        self.moves = []
-        for self.cell in range(64):
-            self.i = self.cell // 8
-            self.j = self.cell - self.i * 8
-            print()
-            print(self.i, self.j, self.mat_lst[self.i][self.j])
-            self.new_mat_lst = copy.deepcopy(self.mat_lst)
+        moves = []
+        for cell in range(64):
+            i = cell // 8
+            j = cell - i * 8
+           # print()
+          #  print(i, j, self.gems[i][j])
+            self.new_mat_lst = copy.deepcopy(self.gems)
 
-            for self.op in GameBoard.ops:
-                self.n_i = self.i + self.op[0]
-                self.n_j = self.j + self.op[1]
+            for op in GameBoard.ops:
+                n_i = i + op[0]
+                n_j = j + op[1]
                 #print(n_i ,n_j)
-                if 0 <= self.n_i <= 7 and 0 <= self.n_j <= 7:
-                    self.swap = self.new_mat_lst[self.i][self.j]
-                    self.new_mat_lst[self.i][self.j] = self.new_mat_lst[self.n_i][self.n_j]
-                    self.new_mat_lst[self.n_i][self.n_j] = self.swap
-                    self.TM = GameBoard.detect(self.new_mat_lst)
-                    if self.TM[0]:
-                        if (self.TM[0], (self.n_i, self.n_j), (self .i, self.j)) not in self.moves:
+                if 0 <= n_i <= 7 and 0 <= n_j <= 7:
+                    swap = self.new_mat_lst[i][j]
+                    self.new_mat_lst[i][j] = self.new_mat_lst[n_i][n_j]
+                    self.new_mat_lst[n_i][n_j] = swap
+                    TM = GameBoard.detect(self.new_mat_lst)
+                  #  print(self.new_mat_lst)
+                    if TM[0]:
+                        if (TM[0], (n_i, n_j), (i, j)) not in moves:
                            # self.moves.append(((self.i, self.j), (self.n_i, self.n_j)))
-                            self.moves.append((self.TM[1], (self.mat_lst[self.i][self.j]), (self.mat_lst[self.n_i][self.n_j])))
+                            moves.append((TM[1], (self.coords[i][j]), (self.coords[n_i][n_j])))
 
-                    self.swap = self.new_mat_lst[self.n_i][self.n_j]
-                    self.new_mat_lst[self.n_i][self.n_j] = self.new_mat_lst[self.i][self.j]
-                    self.new_mat_lst[self.i][self.j] = self.swap
+                    swap = self.new_mat_lst[n_i][n_j]
+                    self.new_mat_lst[n_i][n_j] = self.new_mat_lst[i][j]
+                    self.new_mat_lst[i][j] = swap
 
        # print(len(self.moves))
-        print(self.moves)
-        self.moves = sorted(self.moves, reverse=True, key=lambda x: x[0])
 
-        return self.moves
+        moves = sorted(moves, reverse=True, key=lambda x: x[0])
+       # print(moves)
+        return moves
 
     def swap1(self, gem_1, gem_2):
         self.action = webdriver.common.action_chains.ActionChains(self.driver)
-        self.gem_1 = gem_1
-        self.gem_2 = gem_2
-        self.action.move_to_element_with_offset(self.el, self.gem_1[1][0] + 4, self.gem_1[1][1] + 4)
+
+        self.action.move_to_element_with_offset(self.el, gem_1[0], gem_1[1])
         self.action.click()
         time.sleep(0.4)
-        self.action.move_to_element_with_offset(self.el, self.gem_2[1][0] + 4, self.gem_2[1][1] + 4)
+        self.action.move_to_element_with_offset(self.el, gem_2[0], gem_2[1])
         self.action.click()
         self.action.perform()
 
