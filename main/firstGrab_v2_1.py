@@ -17,7 +17,7 @@ class GameBoard:
 
     ops = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     EXAMPLES_PATH = 'gems_examples/'
-    ERRORS = [0.7, 0.7, 0.6]
+    ERRORS = [0.7, 0.7, 0.1]
     EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
                 ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy'],
                 ['bs.npy', 'gs.npy', 'os.npy', 'ps.npy', 'rs.npy', 'ws.npy', 'ys.npy']]
@@ -25,8 +25,8 @@ class GameBoard:
     def __init__(self, driver=webdriver.Firefox()):
         self.driver = driver
         self.examples = []
-        self.coords = []
-        self.gems = []
+        self.coords = []  # list with coordinates of gms
+        self.gems = []    # list of gems
         for i in range(8):
             level = []
             for j in range(8):
@@ -149,6 +149,31 @@ class GameBoard:
         cv2.imwrite(im_filename, img)
         np.save(np_filename, img)
 
+
+    @staticmethod
+    def save_exmaple(folder, img):
+        """
+        Check folder existence. If folder doesn't exist it creates new folder.
+        :param folder: path to folder.
+        :param img: image file.
+        :return: number of files in folder.
+        """
+        np_filename = folder
+        im_filename = folder
+        if os.path.isdir(folder):
+            num = str(int(len(os.listdir(folder)) / 2 ))
+         #   os.mkdir(folder + '/' + num)
+            im_filename += '/' + str(folder) + str(num) + '.jpg'
+            np_filename += '/' + str(folder) + str(num) + '.npy'
+        else:
+            os.mkdir(folder)
+           # os.mkdir(folder + '/0')
+            im_filename += '/' + str(folder) + '.jpg'
+            np_filename += '/' + str(folder) + '.npy'
+        cv2.imwrite(im_filename, img)
+        np.save(np_filename, img)
+
+
     def analyze_2(self):
         self.mat_lst = []
         self.driver.save_screenshot('temp.jpg')
@@ -186,6 +211,7 @@ class GameBoard:
                         res = example.compare(gem)
                         if res > GameBoard.ERRORS[k]:
                             self.gems[i][j] = str(example)
+                            GameBoard.save_exmaple(str(example), gem) ###########################
 
 #                            self.mat_lst.append()
                             found = True
