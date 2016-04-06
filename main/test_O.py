@@ -1,5 +1,7 @@
 from main.firstGrab_v2_1 import GameBoard
 import time
+import cv2
+
 new_game = GameBoard()
 new_game.load_game()
 while True:

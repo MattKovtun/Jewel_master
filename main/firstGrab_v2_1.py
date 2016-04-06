@@ -21,6 +21,7 @@ class GameBoard:
     EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
                 ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy'],
                 ['bs.npy', 'gs.npy', 'os.npy', 'ps.npy', 'rs.npy', 'ws.npy', 'ys.npy']]
+    MAX = 1000
 
     def __init__(self, driver=webdriver.Firefox()):
         self.driver = driver
@@ -137,21 +138,19 @@ class GameBoard:
         np_filename = folder
         im_filename = folder
         if os.path.isdir(folder):
-            num = str(len(os.listdir(folder)))
-            os.mkdir(folder + '/' + num)
-            im_filename += '/' + num + '/data.jpg'
-            np_filename += '/' + num + '/data.npy'
+            num = str(len(os.listdir(folder)) // 2)
+            im_filename += '/' + num + '.jpg'
+            np_filename += '/' + num + '.npy'
         else:
             os.mkdir(folder)
-            os.mkdir(folder + '/0')
-            im_filename += '/0/data.jpg'
-            np_filename += '/0/data.npy'
+            im_filename += '/0.jpg'
+            np_filename += '/0.npy'
         cv2.imwrite(im_filename, img)
         np.save(np_filename, img)
 
 
     @staticmethod
-    def save_exmaple(folder, img):
+    def save_example(folder, img):
         """
         Check folder existence. If folder doesn't exist it creates new folder.
         :param folder: path to folder.
@@ -161,43 +160,50 @@ class GameBoard:
         np_filename = folder
         im_filename = folder
         if os.path.isdir(folder):
-            num = str(int(len(os.listdir(folder)) / 2 ))
-         #   os.mkdir(folder + '/' + num)
-            im_filename += '/' + str(folder) + str(num) + '.jpg'
-            np_filename += '/' + str(folder) + str(num) + '.npy'
+            num = str(len(os.listdir(folder)) // 2)
+            im_filename += '/' + num + '.jpg'
+            np_filename += '/' + num + '.npy'
         else:
             os.mkdir(folder)
-           # os.mkdir(folder + '/0')
-            im_filename += '/' + str(folder) + '.jpg'
-            np_filename += '/' + str(folder) + '.npy'
-        cv2.imwrite(im_filename, img)
-        np.save(np_filename, img)
+            im_filename += '/0.jpg'
+            np_filename += '/0.npy'
+
+        num = len(os.listdir(folder)) // 2
+
+        if num <= GameBoard.MAX:
+            for i in range(num):
+                saved = np.load(folder + '/' + str(i) + '.npy')
+
+                if (saved == img).all():
+                    return
+
+            cv2.imwrite(im_filename, img)
+            np.save(np_filename, img)
 
 
     def analyze_2(self):
         self.mat_lst = []
-        self.driver.save_screenshot('temp.jpg')
-        screen = cv2.imread("temp.jpg")
+        self.driver.save_screenshot('temp.bmp')
+        screen = cv2.imread("temp.bmp")
         top = self.el.location['y'] + 49
         left = self.el.location['x'] + 168
         width = 320
         height = 320
 
-        img_board = screen[top:top + height, left:left + width]
-
-        hsv = cv2.cvtColor(img_board, cv2.COLOR_BGR2HSV)
-
+        board = screen[top:top + height, left:left + width]
+        hsv = cv2.cvtColor(board, cv2.COLOR_BGR2HSV)
         lower = np.array([0, 0, 118])
         upper = np.array([179, 255, 255])
         mask = cv2.inRange(hsv, lower, upper)
-        img_board = cv2.bitwise_and(img_board, img_board, mask=mask)
+        filtred_board = cv2.bitwise_and(board, board, mask=mask)
 
         self._clear_data()
 
         for i in range(8):
             for j in range(8):
                 found = False
-                gem = img_board[i * 40:(i + 1) * 40, j * 40:(j + 1) * 40]
+                gem = filtred_board[i * 40:(i + 1) * 40, j * 40:(j + 1) * 40]
+                full_gem = board[i * 40:(i + 1) * 40, j * 40:(j + 1) * 40]
                 self.coords[i][j] = ((j * 40) + 5 + 168, (i * 40) + 5 + 49)
                 for k in range(len(self.examples)):
                     if found:
@@ -211,14 +217,14 @@ class GameBoard:
                         res = example.compare(gem)
                         if res > GameBoard.ERRORS[k]:
                             self.gems[i][j] = str(example)
-                            GameBoard.save_exmaple(str(example), gem) ###########################
+                            GameBoard.save_example(str(example), full_gem) ###########################
 
 #                            self.mat_lst.append()
                             found = True
                             break
 
                 if self.gems[i][j] == '__':
-                    GameBoard.save_file('errors', gem)
+                    GameBoard.save_example('errors', full_gem)
 
             print(' '.join(self.gems[i]))
         #print(self.coords)
