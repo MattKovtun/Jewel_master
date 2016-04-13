@@ -325,7 +325,7 @@ class GameBoard:
 
        # print(len(self.moves))
 
-        moves = sorted(moves, reverse=True, key=lambda x: x[0])
+
        # print(moves)
         return moves
 
