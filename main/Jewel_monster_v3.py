@@ -5,7 +5,7 @@ from selenium import webdriver
 import time
 import cv2
 import os
-from main.gem import Gem
+
 # from Analyzer import SimpleAnalyzer
 # from MoveDetector import SimpleMove
 
@@ -41,10 +41,10 @@ class Game:
         gem_1 = self.move[0]
         gem_2 = self.move[1]
         action = webdriver.common.action_chains.ActionChains(self.driver)
-        action.move_to_element_with_offset(el, gem_1[0], gem_1[1])
+        action.move_to_element_with_offset(el, gem_1[0] + 5, gem_1[1] + 5)
         action.click()
         time.sleep(0.4)
-        action.move_to_element_with_offset(el, gem_2[0], gem_2[1])
+        action.move_to_element_with_offset(el, gem_2[0] + 5, gem_2[1] + 5)
         action.click()
         action.perform()
 
@@ -135,9 +135,3 @@ class Game:
 
             cv2.imwrite(im_filename, img)
             np.save(np_filename, img)
-
-if __name__ == "__main__":
-    a = Game(SimpleAnalyzer, SimpleMove)
-    a.load()
-    a.analyze()
-    a.get_move()

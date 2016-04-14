@@ -1,9 +1,10 @@
 import cv2
-from main.gem import Gem
 import numpy as np
 #from Jewel_monster_v3 import Game
+import os
+from sklearn.neighbors import KNeighborsClassifier
+from main.gem import Gem
 
-#
 # class AbstractAnalyzer:
 #     def __init__(self):
 #         self.EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
@@ -13,7 +14,54 @@ import numpy as np
 #         self.ERRORS = [0.7, 0.7, 0.1]
 
 class KNNAnalyzer:
-    pass
+    def analyze(self, driver, Game):
+        self.gems = []
+        for i in range(8):
+            level = []
+            for j in range(8):
+                level.append('__')
+            self.gems.append(level)
+
+
+
+        el = driver.find_element_by_css_selector('#iframe-game')  # you should use meaningful names
+        folders = ['b_', 'r_', 'y_', 'w_', 'g_', 'p_', 'o_']
+      #  folders = ['b_', 'r_', 'y_', 'w_', 'g_', 'p_', 'o_', 'bf', 'gf', 'of', 'pf', 'rf', 'wf', 'yf','bs', 'gs', 'os', 'ps', 'rs', 'ws', 'ys']
+
+        MAX = 1000
+        X = []
+        y = []
+        for i in range(len(folders)):
+            folder = folders[i]
+            num = len(os.listdir(folder)) // 2
+            for j in range(num):
+                img = np.reshape(np.load(folder + '/' + str(j) + '.npy'), -1)
+                X.append(img)
+                y.append(i)
+
+        neigh = KNeighborsClassifier(n_neighbors=3)
+        neigh.fit(X, y)
+
+        driver.save_screenshot('temp.bmp')
+        screen = cv2.imread("temp.bmp")
+        top = el.location['y'] + 49
+        left = el.location['x'] + 168
+        width = 320
+        height = 320
+        board = screen[top:top + height, left:left + width]
+
+        for i in range(8):
+            for j in range(8):
+                full_gem = board[i * 40:(i + 1) * 40, j * 40:(j + 1) * 40]
+                val = np.reshape(full_gem, -1)
+                self.gems[i][j] = folders[int(neigh.predict([val]))]
+
+            print(' '.join(self.gems[i]))
+            # print(self.coords)
+            # print(self.gems)
+        return self.gems
+
+#        print(neigh.predict([val]))
 
 class SimpleAnalyzer:
 
@@ -85,14 +133,15 @@ class SimpleAnalyzer:
                         res = example.compare(gem)
                         if res > Game.ERRORS[k]:
                             self.gems[i][j] = str(example)
-                            Game.save_example(str(example), full_gem)  ###########################
+#                            Game.save_example(str(example), full_gem)  ###########################
 
                             #                            self.mat_lst.append()
                             found = True
                             break
 
                 if self.gems[i][j] == '__':
-                    Game.save_example('errors', full_gem)
+                    pass
+                    #Game.save_example('errors', full_gem)
 
             print(' '.join(self.gems[i]))
             # print(self.coords)
