@@ -2,7 +2,6 @@ import os
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 
-import cv2
 
 folders = ['b_', 'r_', 'y_', 'w_', 'g_', 'p_', 'o_']
 X = []

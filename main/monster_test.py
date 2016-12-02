@@ -1,6 +1,6 @@
 from main.Jewel_monster_v3 import Game
-from Analyzer import SimpleAnalyzer, KNNAnalyzer
-from MoveDetector import SimpleMove, AdvancedMove
+from main.Analyzer import SimpleAnalyzer, KNNAnalyzer
+from main.MoveDetector import SimpleMove, AdvancedMove
 import time
 
 new_game = Game(SimpleAnalyzer, AdvancedMove)
@@ -10,6 +10,7 @@ while True:
     time.sleep(2)
     new_game.analyze()
     gems = new_game.get_move()
-    input()
+   # input()
     new_game.make_move()
     print()
+

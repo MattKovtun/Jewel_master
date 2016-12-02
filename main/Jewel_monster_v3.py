@@ -1,13 +1,8 @@
 import numpy as np
-import time
-import copy
 from selenium import webdriver
 import time
 import cv2
 import os
-
-# from Analyzer import SimpleAnalyzer
-# from MoveDetector import SimpleMove
 
 
 

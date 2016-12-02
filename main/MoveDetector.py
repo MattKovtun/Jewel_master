@@ -147,8 +147,6 @@ class AdvancedMove:
 
         for j in range(8):
             for i in range(2, 8):
-                # if mat[j][i][0] != mat[j][i - 1][0] : #if lst[i][j] != lst[i][j + 1]:
-                # continue
 
                 if mat[j][i][0] == mat[j][i - 1][0] == mat[j][i - 2][0]:
                     utility += 1

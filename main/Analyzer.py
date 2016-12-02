@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-#from Jewel_monster_v3 import Game
 import os
 from sklearn.neighbors import KNeighborsClassifier
 from main.gem import Gem
