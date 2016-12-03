@@ -4,6 +4,12 @@ import time
 import cv2
 
 
+
+desc = """
+    Test file which just opens ling  http://www.miniclip.com/games/bejeweled/en/
+    """
+
+
 driver = webdriver.Firefox()
 
 driver.get('http://www.miniclip.com/games/bejeweled/en/')
@@ -51,9 +57,6 @@ def test_switch(gem_1, gem_2):
     action.perform()
 
 test_switch()
-# ***************************************************************
-# You should cut off the image of the game from a screenshot here.
-# ***************************************************************
 
 driver.save_screenshot('Jewels.png')  # save screenshot of the image to the file
 

@@ -1,3 +1,9 @@
+
+desc = """
+    File which was used to make machine learning and create examples of gems
+    """
+
+
 import os
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier

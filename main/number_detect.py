@@ -1,6 +1,13 @@
+
+
+desc = """
+    This file is unused in current version the general purpose
+    of this file was to teach bot recognize score he gets
+    """
+
+
 import cv2
-import numpy as np
-from matplotlib import pyplot as plt
+
 import numpy as np
 
 
@@ -48,6 +55,7 @@ for number in number_lst:
     for i in new_sort(lst, number[1], 4):
         cv2.rectangle(img_rgb, i[1], (i[1][0] + w, i[1][1] + h), (0,0,255), 2)
     cv2.imwrite(number[0][:-4] + '_check.png',img_rgb)
+
 
 
 #print(new_number_lst)

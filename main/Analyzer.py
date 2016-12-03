@@ -2,17 +2,16 @@ import cv2
 import numpy as np
 import os
 from sklearn.neighbors import KNeighborsClassifier
-from main.gem import Gem
+from gem import Gem
 
-# class AbstractAnalyzer:
-#     def __init__(self):
-#         self.EXAMPLES = [['b_.npy', 'g_.npy', 'o_.npy', 'p_.npy', 'r_.npy', 'w_.npy', 'y_.npy'],
-#                                     ['bf.npy', 'gf.npy', 'of.npy', 'pf.npy', 'rf.npy', 'wf.npy', 'yf.npy'],
-#                                     ['bs.npy', 'gs.npy', 'os.npy', 'ps.npy', 'rs.npy', 'ws.npy', 'ys.npy']]
-#         self.EXAMPLES_PATH = 'gems_examples/'
-#         self.ERRORS = [0.7, 0.7, 0.1]
 
+desc = """
+    There are two analyzers, basically one
+    can write its own algorithm of analyzation of gems
+    and use it in bot
+    """
 class KNNAnalyzer:
+    "Analyzer which uses sklearn algorithm described here http://scikit-learn.org/stable/modules/neighbors.html"
     def analyze(self, driver, Game):
         self.gems = []
         for i in range(8):
@@ -63,6 +62,7 @@ class KNNAnalyzer:
 #        print(neigh.predict([val]))
 
 class SimpleAnalyzer:
+    "Analyzer which uses onpencv algorithm to analyze gems"
 
     def _clear_data(self):
         self.gems = []

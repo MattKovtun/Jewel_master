@@ -1,8 +1,21 @@
 import copy
 
+
+desc = """
+    There are two move detectors, basically one
+    can write its own algorithm of move detection
+    and use it in bot
+    """
 class SimpleMove:
 
     def get_move(self, gems, Game):
+        """
+        Method which finds a possible move, and returns 2 cells
+        which places should be changed
+        :param gems:
+        :param Game:
+        :return:
+        """
         moves = []
         coords = []
         for i in range(8):
@@ -47,8 +60,8 @@ class SimpleMove:
     def detect(mat):
         """
         We detect here largest number of gems in row or in column
+        the most useful move
         """
-        # print(len(mat))
         utility = 0
 
         for j in range(8):
@@ -97,6 +110,13 @@ class SimpleMove:
 
 class AdvancedMove:
     def get_move(self, gems, Game):
+        """
+        Method which finds a possible move, and returns 2 cells
+        which places should be changed
+        :param gems:
+        :param Game:
+        :return:
+        """
         moves = []
         coords = []
         for i in range(8):
@@ -141,8 +161,8 @@ class AdvancedMove:
     def detect(mat):
         """
         We detect here largest number of gems in row or in column
+        the most useful move
         """
-        # print(len(mat))
         utility = 0
 
         for j in range(8):

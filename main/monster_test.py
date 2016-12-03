@@ -1,6 +1,6 @@
-from main.Jewel_monster_v3 import Game
-from main.Analyzer import SimpleAnalyzer, KNNAnalyzer
-from main.MoveDetector import SimpleMove, AdvancedMove
+from Jewel_monster_v3 import Game
+from Analyzer import SimpleAnalyzer, KNNAnalyzer
+from MoveDetector import SimpleMove, AdvancedMove
 import time
 
 new_game = Game(SimpleAnalyzer, AdvancedMove)

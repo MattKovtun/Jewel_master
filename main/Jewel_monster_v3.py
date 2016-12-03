@@ -8,6 +8,7 @@ import os
 
 
 class Game:
+    "The bot itself"
     pop_cup = ('start_game.jpg', 0.66)
     ops = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     EXAMPLES_PATH = 'gems_examples/'
@@ -20,6 +21,8 @@ class Game:
 
 
     def __init__(self, Analyzer, MoveDetector):
+        "Strategy pattern used here"
+
         self.driver = webdriver.Firefox()
         self._analyzer = Analyzer()
         self._move_detector = MoveDetector()
@@ -32,6 +35,10 @@ class Game:
      #   return self._move_detector.get_move(self.gems)
 
     def make_move(self):
+        """
+        Method which in according to detected move, changes placed of gems
+        :return:
+        """
         el = self.driver.find_element_by_css_selector('#iframe-game')
         gem_1 = self.move[0]
         gem_2 = self.move[1]
@@ -49,7 +56,10 @@ class Game:
 
 
     def _load(self):
-
+        """
+        Method which loads specific web page with the gama
+        :return:
+        """
         #driver = webdriver.Firefox()
         self.driver.get('http://www.miniclip.com/games/bejeweled/en/')
 
@@ -77,7 +87,7 @@ class Game:
 
             for pt in zip(*loc[::-1]):
                 lst.append(pt)
-            print("It's loading ,wait please...")  # debug
+            print("The game is loading, please wait...")  # debug
 
             if len(lst):
                 print("Loading is completed!")
@@ -104,6 +114,7 @@ class Game:
     def save_example(folder, img):
         """
         Check folder existence. If folder doesn't exist it creates new folder.
+        And saves gems to that folder
         :param folder: path to folder.
         :param img: image file.
         :return: number of files in folder.
