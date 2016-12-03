@@ -42,7 +42,33 @@ $ python3 monster_test.py
 
 ### Break down into end to end tests
 
-Firefox browser will be opened with the link (http://www.miniclip.com/games/bejeweled/en/). After the page is loaded you will see debug message saying 'The page has been loaded.' While server of the Miniclip is loading the game you will see debug message 'The game is loading, please wait...' When game is loaded debug message will say 'Loading is completed!' Then bot will choose the game mode and start new game, debug message will say 'click' After that greedy algorithm will play the game, and it will print the whole matrix of diamonds he recognised. where the first letter is the color of the diamond for example 'w_' mean white, 'b_' means blue, and sometimes he will recognize special effects like 'gs' - means shining green gem, and will be treated like regular white, of 'gf' - flaming green gem.
+Firefox browser will be opened with the link (http://www.miniclip.com/games/bejeweled/en/). After the page is loaded you will see debug message saying 'The page has been loaded.' 
+
+```
+The page has been loaded.
+```
+
+While server of the Miniclip is loading the game you will see debug message 'The game is loading, please wait...' 
+
+```
+The game is loading, please wait...
+The game is loading, please wait...
+The game is loading, please wait...
+```
+
+When game is loaded debug message will say 'Loading is completed!' 
+
+```
+Loading is completed!
+```
+
+Then bot will choose the game mode and start new game, debug message will say 'click' 
+
+```
+click
+```
+
+After that greedy algorithm will play the game, and it will print the whole matrix of diamonds he recognised. Where the first letter is the color of the diamond for example 'w_' mean white, 'b_' means blue, and special effects like 'gs' - means shining green gem, and will be treated like regular green gem, of 'gf' - flaming green gem.
 
 ```
 o_ o_ y_ p_ p_ b_ g_ p_
