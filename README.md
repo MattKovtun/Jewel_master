@@ -85,7 +85,7 @@ o_ o_ g_ w_ r_ y_ p_ o_
 
 ## Authors
 
-* **Matt Kovtun** - *Initial work* - [MattKovtun](https://github.com/MattKovtun)
+* **Matt Kovtun** - *Initial work* - [MattKovtun](https://github.com/MattKovtun/jewel-monster/graphs/contributors)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
