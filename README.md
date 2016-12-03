@@ -23,8 +23,9 @@ There is 'setup.py' in repository, but still.
 
 Beside those you also need:
 
-1.Opencv
-2.Firefox version <= 46
+1. Opencv
+2. Firefox version <= 46
+
 
 ## Running the bot
 
@@ -41,6 +42,7 @@ Run the bot
 ```
 python3 monster_test.py
 ```
+
 
 ### Break down into end to end tests
 
@@ -64,6 +66,7 @@ g_ b_ g_ p_ o_ r_ y_ p_
 o_ o_ g_ w_ r_ y_ p_ o_
 
 ```
+
 
 ## Authors
 
