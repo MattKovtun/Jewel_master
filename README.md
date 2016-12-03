@@ -8,10 +8,6 @@ with the Bejeweled game and plays it.
 
 Download all files from repository and unzip to some folder.
 
-```
-cd .../jewel-monster/main
-python3 monster_test.py
-```
 
 ### Prerequisites
 
@@ -32,7 +28,7 @@ Beside those you also need:
 Go to directory with the bot and then to main 
 
 ```
-cd .../jewel-monster/main
+$ cd .../jewel-monster/main
 ```
 
 *where ... stands for directories on your PC
@@ -40,7 +36,7 @@ cd .../jewel-monster/main
 Run the bot 
 
 ```
-python3 monster_test.py
+$ python3 monster_test.py
 ```
 
 
